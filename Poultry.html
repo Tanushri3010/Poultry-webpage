@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graspear Poultry - Inventory System</title>
+    <style>
+        :root {
+            --primary: #f1c603;
+            --secondary: #007bff;
+            --success: #28a745;
+            --danger: #dc3545;
+            --dark: #343a40;
+            --light: #f8f9fa;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-image: url('https://patch.com/img/cdn20/users/22924509/20190325/100951/styles/raw/public/processed_images/shutterstock_519880894-1553522512-5274.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            min-height: 100vh;
+            color: white;
+        }
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 2.2rem;
+        }
+        .container {
+            width: 90%;
+            max-width: 500px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.85);
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .input-error {
+            border-color: var(--danger);
+        }
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: var(--secondary);
+        }
+        .btn-primary:hover {
+            background-color: #0069d9;
+            transform: translateY(-2px);
+        }
+        .btn-success {
+            background-color: var(--success);
+        }
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+        .btn-danger {
+            background-color: var(--danger);
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px;
+            color: var(--dark);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .result h3 {
+            margin-top: 0;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 5px;
+        }
+        .result ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+        }
+        .result li {
+            margin-bottom: 8px;
+        }
+        .inventory-display {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+        }
+        .inventory-display h3 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .status-good {
+            background-color: var(--success);
+        }
+        .status-warning {
+            background-color: rgb(241, 237, 229);
+        }
+        .status-danger {
+            background-color: var(--danger);
+        }
+        @media (max-width: 576px) {
+            .container {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Graspear Poultry</h2>
+    <div class="container">
+        <div class="form-group">
+            <label for="chickens">Number of Chickens in Inventory:</label>
+            <input type="number" id="chickens" placeholder="Enter total chickens" min="0" value="12">
+            <div class="error-message" id="chickens-error">Please enter a valid number</div>
+        </div>
+        <button class="btn btn-primary" onclick="initializeInventory()">Initialize Inventory</button>
+        <div class="inventory-display" id="inventory-display" style="display: none;">
+            <h3>Current Inventory</h3>
+            <div id="inventory-content"></div>
+        </div>
+        <h3 style="color: var(--primary); margin-top: 20px;">Place Order</h3>
+        <div class="form-group">
+            <label for="legs">Chicken Legs:</label>
+            <input type="number" id="legs" placeholder="Enter number of legs" min="0">
+            <div class="error-message" id="legs-error">Please enter a valid number</div>
+        </div>
+        <div class="form-group">
+            <label for="wings">Chicken Wings:</label>
+            <input type="number" id="wings" placeholder="Enter number of wings" min="0">
+            <div class="error-message" id="wings-error">Please enter a valid number</div>
+        </div>
+        <div class="form-group">
+            <label for="flesh">Flesh Portions (kg):</label>
+            <input type="number" id="flesh" placeholder="Enter kg of flesh portions" min="0" step="0.1">
+            <div class="error-message" id="flesh-error">Please enter a valid number</div>
+        </div>
+        <button class="btn btn-success" onclick="processOrder()">Place Order</button>
+        <button class="btn btn-danger" onclick="resetForm()">Reset Form</button> 
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        let inventory = {
+            chickens: 0,
+            legs: 0,
+            wings: 0,
+            flesh: 0,
+            totalWeight: 0
+        };
+        function initializeInventory() {
+            const chickensInput = document.getElementById("chickens");
+            const chickens = parseInt(chickensInput.value);
+            if (isNaN(chickens) || chickens < 0) {
+                showError("chickens", "Please enter a valid number of chickens");
+                return;
+            }
+            hideError("chickens");
+            inventory = {
+                chickens: chickens,
+                legs: chickens * 2,
+                wings: chickens * 2,
+                flesh: chickens * 1,
+                totalWeight: chickens * 2,
+                initialized: true
+            };
+            updateInventoryDisplay();
+            document.getElementById("inventory-display").style.display = "block";
+            showResult("Inventory initialized with " + chickens + " chickens.", "success");
+        }
+        function processOrder() {
+            if (!inventory.initialized) {
+                showResult("Please initialize inventory first.", "error");
+                return;
+            }
+            const legs = parseInt(document.getElementById("legs").value) || 0;
+            const wings = parseInt(document.getElementById("wings").value) || 0;
+            const flesh = parseFloat(document.getElementById("flesh").value) || 0;
+            let isValid = true;
+            if (legs < 0) {
+                showError("legs", "Please enter a valid number");
+                isValid = false;
+            } else {
+                hideError("legs");
+            } 
+            if (wings < 0) {
+                showError("wings", "Please enter a valid number");
+                isValid = false;
+            } else {
+                hideError("wings");
+            }
+            if (flesh < 0) {
+                showError("flesh", "Please enter a valid number");
+                isValid = false;
+            } else {
+                hideError("flesh");
+            }
+            if (!isValid) return;
+            const requiredLegs = Math.ceil(legs / 2);
+            const requiredWings = Math.ceil(wings / 2);
+            const requiredFlesh = Math.ceil(flesh / 1);
+            const requiredChickens = Math.max(requiredLegs, requiredWings, requiredFlesh);
+            if (requiredChickens > inventory.chickens) {
+                showResult(`Not enough inventory. You need ${requiredChickens} chickens but only have ${inventory.chickens}.`, "error");
+                return;
+            }
+            if (legs > inventory.legs || wings > inventory.wings || flesh > inventory.flesh) {
+                showResult("Not enough inventory to fulfill the order.", "error");
+                return;
+            }
+            inventory.chickens -= requiredChickens;
+            inventory.legs -= legs;
+            inventory.wings -= wings;
+            inventory.flesh -= flesh;
+            inventory.totalWeight -= (requiredChickens * 2);
+            const orderWeight = (legs * 0.25) + (wings * 0.25) + (flesh * 1);
+            const resultHTML = `
+                <h3>Order Processed Successfully</h3>
+                <p><strong>Order Details:</strong></p>
+                <ul>
+                    <li>Chicken Legs: ${legs}</li>
+                    <li>Chicken Wings: ${wings}</li>
+                    <li>Flesh Portions: ${flesh.toFixed(1)} kg</li>
+                    <li>Total Order Weight: ${orderWeight.toFixed(2)} kg</li>
+                    <li>Whole Chickens Used: ${requiredChickens}</li>
+                </ul>
+                <p><strong>Updated Inventory:</strong></p>
+                <ul>
+                    <li>Remaining Chickens: ${inventory.chickens}</li>
+                    <li>Remaining Legs: ${inventory.legs}</li>
+                    <li>Remaining Wings: ${inventory.wings}</li>
+                    <li>Remaining Flesh: ${inventory.flesh} kg</li>
+                    <li>Remaining Total Weight: ${inventory.totalWeight} kg</li>
+                </ul>
+            `; 
+            document.getElementById("result").innerHTML = resultHTML;
+            updateInventoryDisplay();
+        }
+        function updateInventoryDisplay() {
+            const inventoryContent = document.getElementById("inventory-content");
+            const statusClass = inventory.chickens < 5 ? "status-danger" : 
+                              inventory.chickens < 10 ? "status-warning" : "status-good";
+            inventoryContent.innerHTML = `
+                <p><span class="status-indicator ${statusClass}"></span> Whole Chickens: ${inventory.chickens}</p>
+                <p>Available Legs: ${inventory.legs}</p>
+                <p>Available Wings: ${inventory.wings}</p>
+                <p>Available Flesh: ${inventory.flesh} kg</p>
+                <p>Total Weight: ${inventory.totalWeight} kg</p>
+            `;
+        }
+        function showError(fieldId, message) {
+            const input = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId + "-error");
+            input.classList.add("input-error");
+            errorElement.textContent = message;
+            errorElement.style.display = "block";
+        }
+        function hideError(fieldId) {
+            const input = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId + "-error");   
+            input.classList.remove("input-error");
+            errorElement.style.display = "none";
+        }
+        function showResult(message, type = "info") {
+            const resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = `<p class="${type}">${message}</p>`;
+        }
+        function resetForm() {
+            document.getElementById("legs").value = "";
+            document.getElementById("wings").value = "";
+            document.getElementById("flesh").value = "";
+            document.getElementById("result").innerHTML = "";
+            hideError("legs");
+            hideError("wings");
+            hideError("flesh");
+        }
+    </script>
+</body>
+</html>
